@@ -1,3 +1,9 @@
+# Azurerm Provider configuration
+provider "azurerm" {
+  features {
+  }
+}
+
 module "hdinsight" {
   //  source  = "kumarvna/hdinsight/azurerm"
   //  version = "1.0.0"
@@ -7,5 +13,6 @@ module "hdinsight" {
   # proivde a name to use an existing resource group, specify the existing resource group name, 
   # set the argument to `create_resource_group = true` to create new resrouce group.
   resource_group_name = "rg-shared-westeurope-01"
+  location            = "westeurope"
 
 }
