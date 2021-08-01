@@ -53,7 +53,7 @@ variable "hadoop_cluster" {
     name             = string
     cluster_version  = string
     tier             = string
-    tls_min_version  = optional(string)
+    min_tls_version  = optional(string)
     hadoop_version   = string
     gateway_username = string
     gateway_password = string
@@ -162,6 +162,99 @@ variable "log_analytics_workspace_name" {
   description = "The name of log analytics workspace name"
   default     = null
 }
+
+variable "hbase_cluster" {
+  type = object({
+    name             = string
+    cluster_version  = string
+    tier             = string
+    min_tls_version  = optional(string)
+    hbase_version    = string
+    gateway_username = string
+    gateway_password = string
+  })
+  description = "Manages a HDInsight HBase Cluster"
+}
+
+
+variable "hbase_roles" {
+  type = object({
+    vm_username  = string
+    vm_password  = optional(string)
+    ssh_key_file = optional(list(string))
+    head_node = object({
+      vm_size            = string
+      subnet_id          = optional(string)
+      virtual_network_id = optional(string)
+    })
+
+    worker_node = object({
+      vm_size               = string
+      subnet_id             = optional(string)
+      target_instance_count = optional(number)
+      virtual_network_id    = optional(string)
+      autoscale = optional(object({
+        recurrence = object({
+          schedule = object({
+            days                  = string
+            target_instance_count = number
+            time                  = number
+          })
+          timezone = string
+        })
+      }))
+    })
+
+    zookeeper_node = object({
+      vm_size            = string
+      subnet_id          = optional(string)
+      virtual_network_id = optional(string)
+    })
+  })
+  description = "Manage roles for HDInsight HBase Cluster"
+}
+
+variable "hbase_storage_account_gen2" {
+  type = object({
+    storage_resource_id          = string
+    filesystem_id                = string
+    managed_identity_resource_id = string
+  })
+  default = null
+}
+
+variable "hbase_metastores" {
+  type = object({
+    hive = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+    oozie = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+    ambari = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+  })
+  description = "HDInsight metadata with external data stores, available for Apache Hive metastore, Apache Oozie metastore, and Apache Ambari database."
+  default     = null
+}
+
+variable "enable_hbase_monitoring" {
+  description = "Use Azure Monitor logs to monitor HDInsight hbase cluster"
+  default     = false
+}
+
+
+
 
 variable "tags" {
   description = "A map of tags to add to all resources"
