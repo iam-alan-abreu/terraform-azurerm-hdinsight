@@ -58,4 +58,11 @@ module "hdinsight" {
   # Recommended to place both the HDInsight cluster and the Log Analytics workspace in the same region for better performance
   enable_hadoop_monitoring     = true
   log_analytics_workspace_name = "loganalytics-we-sharedtest2"
+
+  # Tags for Azure Resources
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+    Owner       = "test-user"
+  }
 }

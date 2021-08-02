@@ -33,19 +33,17 @@ module "hdinsight" {
   # Node configuration
   # Either a password or one or more ssh_keys must be specified - but not both.
   # Password must be at least 10 characters in length and must contain digits,uppercase, lower case letters and non-alphanumeric characters 
+
   hbase_roles = {
     vm_username = "acctestusrvm"
     vm_password = "AccTestvdSC4daf986!"
-
     head_node = {
       vm_size = "Standard_D3_V2"
     }
-
     worker_node = {
       vm_size               = "Standard_D3_V2"
       target_instance_count = 3
     }
-
     zookeeper_node = {
       vm_size = "Standard_D3_V2"
     }
@@ -55,4 +53,11 @@ module "hdinsight" {
   # Recommended to place both the HDInsight cluster and the Log Analytics workspace in the same region for better performance
   enable_hbase_monitoring      = true
   log_analytics_workspace_name = "loganalytics-we-sharedtest2"
+
+  # Tags for Azure Resources
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+    Owner       = "test-user"
+  }
 }

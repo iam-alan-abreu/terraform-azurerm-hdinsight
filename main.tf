@@ -70,7 +70,7 @@ resource "azurerm_hdinsight_hadoop_cluster" "main" {
   location            = local.location
   cluster_version     = var.hadoop_cluster.cluster_version
   tier                = var.hadoop_cluster.tier
-  min_tls_version     = var.hadoop_cluster.min_tls_version
+  tls_min_version     = lookup(var.hadoop_cluster, "tls_min_version", null) #var.hadoop_cluster.min_tls_version
   tags                = merge({ "Name" = format("%s", var.hadoop_cluster.name) }, var.tags, )
 
   component_version {
@@ -134,30 +134,30 @@ resource "azurerm_hdinsight_hadoop_cluster" "main" {
               }
             }
           }
+        }
+      }
 
-          dynamic "zookeeper_node" {
-            for_each = var.hadoop_roles.zookeeper_node != null ? [var.hadoop_roles.zookeeper_node] : []
-            content {
-              username           = var.hadoop_roles.vm_username
-              password           = var.hadoop_roles.vm_password
-              vm_size            = var.hadoop_roles.worker_node.vm_size
-              ssh_keys           = var.hadoop_roles.ssh_key_file
-              subnet_id          = var.hadoop_roles.zookeeper_node.subnet_id
-              virtual_network_id = var.hadoop_roles.zookeeper_node.virtual_network_id
-            }
-          }
+      dynamic "zookeeper_node" {
+        for_each = var.hadoop_roles.zookeeper_node != null ? [var.hadoop_roles.zookeeper_node] : []
+        content {
+          username           = var.hadoop_roles.vm_username
+          password           = var.hadoop_roles.vm_password
+          vm_size            = var.hadoop_roles.worker_node.vm_size
+          ssh_keys           = var.hadoop_roles.ssh_key_file
+          subnet_id          = var.hadoop_roles.zookeeper_node.subnet_id
+          virtual_network_id = var.hadoop_roles.zookeeper_node.virtual_network_id
+        }
+      }
 
-          dynamic "edge_node" {
-            for_each = var.hadoop_roles.edge_node != null ? [var.hadoop_roles.edge_node] : []
+      dynamic "edge_node" {
+        for_each = var.hadoop_roles.edge_node != null ? [var.hadoop_roles.edge_node] : []
+        content {
+          vm_size = var.hadoop_roles.edge_node.vm_size
+          dynamic "install_script_action" {
+            for_each = var.hadoop_roles.edge_node.install_script_action != null ? [var.hadoop_roles.edge_node.install_script_action] : []
             content {
-              vm_size = var.hadoop_roles.edge_node.vm_size
-              dynamic "install_script_action" {
-                for_each = var.hadoop_roles.edge_node.install_script_action != null ? [var.hadoop_roles.edge_node.install_script_action] : []
-                content {
-                  name = var.hadoop_roles.edge_node.install_script_action.name
-                  uri  = var.hadoop_roles.edge_node.install_script_action.uri
-                }
-              }
+              name = var.hadoop_roles.edge_node.install_script_action.name
+              uri  = var.hadoop_roles.edge_node.install_script_action.uri
             }
           }
         }
@@ -248,7 +248,7 @@ resource "azurerm_hdinsight_hbase_cluster" "main" {
   location            = local.location
   cluster_version     = var.hbase_cluster.cluster_version
   tier                = var.hbase_cluster.tier
-  min_tls_version     = var.hbase_cluster.min_tls_version
+  tls_min_version     = lookup(var.hbase_cluster, "tls_min_version", null) #var.hbase_cluster.min_tls_version
   tags                = merge({ "Name" = format("%s", var.hbase_cluster.name) }, var.tags, )
 
   component_version {
@@ -260,60 +260,63 @@ resource "azurerm_hdinsight_hbase_cluster" "main" {
     password = var.hbase_cluster.gateway_password
   }
 
-  roles {
-    dynamic "head_node" {
-      for_each = var.hbase_roles.head_node != null ? [var.hbase_cluster.head_node] : []
-      content {
-        username           = var.hbase_cluster.vm_username
-        password           = var.hbase_cluster.vm_password
-        vm_size            = var.hbase_cluster.head_node.vm_size
-        ssh_keys           = var.hbase_cluster.head_node.ssh_key_file
-        subnet_id          = var.hbase_cluster.head_node.subnet_id
-        virtual_network_id = var.hbase_cluster.head_node.virtual_network_id
+  dynamic "roles" {
+    for_each = var.hbase_roles != null ? [var.hbase_roles] : []
+    content {
+      dynamic "head_node" {
+        for_each = var.hbase_roles.head_node != null ? [var.hbase_roles.head_node] : []
+        content {
+          username           = var.hbase_roles.vm_username
+          password           = var.hbase_roles.vm_password
+          vm_size            = var.hbase_roles.head_node.vm_size
+          ssh_keys           = var.hbase_roles.ssh_key_file
+          subnet_id          = var.hbase_roles.head_node.subnet_id
+          virtual_network_id = var.hbase_roles.head_node.virtual_network_id
+        }
       }
-    }
-    dynamic "worker_node" {
-      for_each = var.hbase_cluster.worker_node != null ? [var.hbase_cluster.worker_node] : []
-      content {
-        username              = var.hbase_cluster.vm_username
-        password              = var.hbase_cluster.vm_password
-        vm_size               = var.hbase_cluster.worker_node.vm_size
-        ssh_keys              = var.hbase_cluster.ssh_key_file
-        subnet_id             = var.hbase_cluster.worker_node.subnet_id
-        target_instance_count = var.hbase_cluster.worker_node.target_instance_count
-        virtual_network_id    = var.hbase_cluster.worker_node.virtual_network_id
+      dynamic "worker_node" {
+        for_each = var.hbase_roles.worker_node != null ? [var.hbase_roles.worker_node] : []
+        content {
+          username              = var.hbase_roles.vm_username
+          password              = var.hbase_roles.vm_password
+          vm_size               = var.hbase_roles.worker_node.vm_size
+          ssh_keys              = var.hbase_roles.ssh_key_file
+          subnet_id             = var.hbase_roles.worker_node.subnet_id
+          target_instance_count = var.hbase_roles.worker_node.target_instance_count
+          virtual_network_id    = var.hbase_roles.worker_node.virtual_network_id
 
-        dynamic "autoscale" {
-          for_each = var.hbase_cluster.worker_node.autoscale != null ? [var.hbase_cluster.worker_node.autoscale] : []
-          content {
-            dynamic "recurrence" {
-              for_each = var.hbase_cluster.worker_node.autoscale.recurrence != null ? [var.hbase_cluster.worker_node.autoscale.recurrence] : []
-              content {
-                dynamic "schedule" {
-                  for_each = var.hbase_cluster.worker_node.autoscale.recurrence.schedule != null ? [var.hbase_cluster.worker_node.autoscale.recurrence.schedule] : []
-                  content {
-                    days                  = var.hbase_cluster.worker_node.autoscale.recurrence.schedule.days
-                    target_instance_count = var.hbase_cluster.worker_node.autoscale.recurrence.schedule.target_instance_count
-                    time                  = var.hbase_cluster.worker_node.autoscale.recurrence.schedule.time
+          dynamic "autoscale" {
+            for_each = var.hbase_roles.worker_node.autoscale != null ? [var.hbase_roles.worker_node.autoscale] : []
+            content {
+              dynamic "recurrence" {
+                for_each = var.hbase_roles.worker_node.autoscale.recurrence != null ? [var.hbase_roles.worker_node.autoscale.recurrence] : []
+                content {
+                  dynamic "schedule" {
+                    for_each = var.hbase_roles.worker_node.autoscale.recurrence.schedule != null ? [var.hbase_roles.worker_node.autoscale.recurrence.schedule] : []
+                    content {
+                      days                  = var.hbase_roles.worker_node.autoscale.recurrence.schedule.days
+                      target_instance_count = var.hbase_roles.worker_node.autoscale.recurrence.schedule.target_instance_count
+                      time                  = var.hbase_roles.worker_node.autoscale.recurrence.schedule.time
+                    }
+                    timezone = var.hbase_roles.worker_node.autoscale.recurrence.timezone
                   }
-                  timezone = var.hbase_cluster.worker_node.autoscale.recurrence.timezone
                 }
               }
             }
           }
         }
       }
-    }
 
-    dynamic "zookeeper_node" {
-      for_each = var.hbase_cluster.zookeeper_node != null ? [var.hbase_cluster.zookeeper_node] : []
-      content {
-        username           = var.hbase_cluster.username
-        password           = var.hbase_cluster.password
-        vm_size            = var.hbase_cluster.zookeeper_node.vm_size
-        ssh_keys           = var.hbase_cluster.ssh_key_file
-        subnet_id          = var.hbase_cluster.zookeeper_node.subnet_id
-        virtual_network_id = var.hbase_cluster.zookeeper_node.virtual_network_id
+      dynamic "zookeeper_node" {
+        for_each = var.hbase_roles.zookeeper_node != null ? [var.hbase_roles.zookeeper_node] : []
+        content {
+          username           = var.hbase_roles.vm_username
+          password           = var.hbase_roles.vm_password
+          vm_size            = var.hbase_roles.zookeeper_node.vm_size
+          ssh_keys           = var.hbase_roles.ssh_key_file
+          subnet_id          = var.hbase_roles.zookeeper_node.subnet_id
+          virtual_network_id = var.hbase_roles.zookeeper_node.virtual_network_id
+        }
       }
     }
   }
@@ -380,3 +383,7 @@ resource "azurerm_hdinsight_hbase_cluster" "main" {
     }
   }
 }
+
+#---------------------------------------------------------------
+# hdinsight hbase cluster - Default is "false"
+#----------------------------------------------------------------

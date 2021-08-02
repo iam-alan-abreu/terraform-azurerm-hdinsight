@@ -53,12 +53,13 @@ variable "hadoop_cluster" {
     name             = string
     cluster_version  = string
     tier             = string
-    min_tls_version  = optional(string)
+    tls_min_version  = optional(string)
     hadoop_version   = string
     gateway_username = string
     gateway_password = string
   })
   description = "Manages a HDInsight Hadoop Cluster"
+  default     = null
 }
 
 
@@ -109,6 +110,7 @@ variable "hadoop_roles" {
     }))
   })
   description = "Manage roles for HDInsight Hadoop Cluster"
+  default     = null
 }
 
 variable "hadoop_storage_account_gen2" {
@@ -168,14 +170,14 @@ variable "hbase_cluster" {
     name             = string
     cluster_version  = string
     tier             = string
-    min_tls_version  = optional(string)
+    tls_min_version  = optional(string)
     hbase_version    = string
     gateway_username = string
     gateway_password = string
   })
   description = "Manages a HDInsight HBase Cluster"
+  default     = null
 }
-
 
 variable "hbase_roles" {
   type = object({
@@ -212,6 +214,7 @@ variable "hbase_roles" {
     })
   })
   description = "Manage roles for HDInsight HBase Cluster"
+  default     = null
 }
 
 variable "hbase_storage_account_gen2" {
