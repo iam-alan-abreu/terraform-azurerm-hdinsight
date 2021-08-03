@@ -42,3 +42,18 @@ output "kafka_cluster_ssh_endpoint" {
   description = "The SSH Connectivity Endpoint for this HDInsight Kafka Cluster"
   value       = var.hdinsight_cluster_type == "kafka" ? azurerm_hdinsight_kafka_cluster.main.0.ssh_endpoint : null
 }
+
+output "spark_cluster_id" {
+  description = "The ID of the HDInsight Spark Cluster"
+  value       = var.hdinsight_cluster_type == "spark" ? azurerm_hdinsight_spark_cluster.main.0.id : null
+}
+
+output "spark_cluster_https_endpoint" {
+  description = "The HTTPS Connectivity Endpoint for this HDInsight Spark Cluster"
+  value       = var.hdinsight_cluster_type == "spark" ? azurerm_hdinsight_spark_cluster.main.0.https_endpoint : null
+}
+
+output "spark_cluster_ssh_endpoint" {
+  description = "The SSH Connectivity Endpoint for this HDInsight Spark Cluster"
+  value       = var.hdinsight_cluster_type == "spark" ? azurerm_hdinsight_spark_cluster.main.0.ssh_endpoint : null
+}

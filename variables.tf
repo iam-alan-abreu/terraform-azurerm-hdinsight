@@ -342,6 +342,109 @@ variable "enable_kafka_monitoring" {
   default     = false
 }
 
+variable "spark_cluster" {
+  type = object({
+    name             = string
+    cluster_version  = string
+    tier             = string
+    tls_min_version  = optional(string)
+    spark_version    = string
+    gateway_username = string
+    gateway_password = string
+  })
+  description = "Manages a HDInsight Spark Cluster"
+  default     = null
+}
+
+variable "spark_roles" {
+  type = object({
+    vm_username  = string
+    vm_password  = optional(string)
+    ssh_key_file = optional(list(string))
+    head_node = object({
+      vm_size            = string
+      subnet_id          = optional(string)
+      virtual_network_id = optional(string)
+    })
+
+    worker_node = object({
+      vm_size               = string
+      subnet_id             = optional(string)
+      target_instance_count = optional(number)
+      virtual_network_id    = optional(string)
+      autoscale = optional(object({
+        capacity = optional(object({
+          max_instance_count = number
+          min_instance_count = number
+        }))
+        recurrence = optional(object({
+          schedule = object({
+            days                  = string
+            target_instance_count = number
+            time                  = number
+          })
+          timezone = string
+        }))
+      }))
+    })
+
+    zookeeper_node = object({
+      vm_size            = string
+      subnet_id          = optional(string)
+      virtual_network_id = optional(string)
+    })
+  })
+  description = "Manage roles for HDInsight Spark Cluster"
+  default     = null
+}
+
+variable "spark_storage_account_gen2" {
+  type = object({
+    storage_resource_id          = string
+    filesystem_id                = string
+    managed_identity_resource_id = string
+  })
+  default = null
+}
+
+variable "spark_network" {
+  type = object({
+    connection_direction = optional(string)
+    private_link_enabled = optional(bool)
+  })
+  default = null
+}
+
+variable "spark_metastores" {
+  type = object({
+    hive = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+    oozie = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+    ambari = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+  })
+  description = "HDInsight metadata with external data stores, available for Apache Hive metastore, Apache Oozie metastore, and Apache Ambari database."
+  default     = null
+}
+
+variable "enable_spark_monitoring" {
+  description = "Use Azure Monitor logs to monitor HDInsight hadoop cluster"
+  default     = false
+}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)

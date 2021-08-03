@@ -526,4 +526,166 @@ resource "azurerm_hdinsight_kafka_cluster" "main" {
 
 }
 
+#---------------------------------------------------------------
+# hdinsight hbase cluster - Default is "false"
+#----------------------------------------------------------------
 
+resource "azurerm_hdinsight_spark_cluster" "main" {
+  count               = var.hdinsight_cluster_type == "spark" ? 1 : 0
+  name                = format("%s", var.spark_cluster.name)
+  resource_group_name = local.resource_group_name
+  location            = local.location
+  cluster_version     = var.spark_cluster.cluster_version
+  tier                = var.spark_cluster.tier
+  tls_min_version     = var.spark_cluster.tls_min_version
+  tags                = merge({ "Name" = format("%s", var.spark_cluster.name) }, var.tags, )
+
+  component_version {
+    spark = var.spark_cluster.spark_version
+  }
+
+  gateway {
+    username = var.spark_cluster.gateway_username
+    password = var.spark_cluster.gateway_password
+  }
+
+  dynamic "roles" {
+    for_each = var.spark_roles != null ? [var.spark_roles] : []
+    content {
+      dynamic "head_node" {
+        for_each = var.spark_roles.head_node != null ? [var.spark_roles.head_node] : []
+        content {
+          username           = var.spark_roles.vm_username
+          password           = var.spark_roles.vm_password
+          vm_size            = var.spark_roles.head_node.vm_size
+          ssh_keys           = var.spark_roles.ssh_key_file
+          subnet_id          = var.spark_roles.head_node.subnet_id
+          virtual_network_id = var.spark_roles.head_node.virtual_network_id
+        }
+      }
+      dynamic "worker_node" {
+        for_each = var.spark_roles.worker_node != null ? [var.spark_roles.worker_node] : []
+        content {
+          # Either a password or one or more ssh_keys must be specified - but not both.
+          username              = var.spark_roles.vm_username
+          password              = var.spark_roles.vm_password
+          vm_size               = var.spark_roles.worker_node.vm_size
+          ssh_keys              = var.spark_roles.ssh_key_file
+          subnet_id             = var.spark_roles.worker_node.subnet_id
+          target_instance_count = var.spark_roles.worker_node.target_instance_count
+          virtual_network_id    = var.spark_roles.worker_node.virtual_network_id
+          # Either a `capacity` or `recurrence` block must be specified - but not both.
+          dynamic "autoscale" {
+            for_each = var.spark_roles.worker_node.autoscale != null ? [var.spark_roles.worker_node.autoscale] : []
+            content {
+              dynamic "capacity" {
+                for_each = var.spark_roles.worker_node.autoscale.capacity != null ? [var.spark_roles.worker_node.autoscale.capacity] : []
+                content {
+                  max_instance_count = var.spark_roles.worker_node.autoscale.capacity.max_instance_count
+                  min_instance_count = var.spark_roles.worker_node.autoscale.capacity.min_instance_count
+                }
+              }
+              dynamic "recurrence" {
+                for_each = var.spark_roles.worker_node.autoscale.recurrence != null ? [var.spark_roles.worker_node.autoscale.recurrence] : []
+                content {
+                  dynamic "schedule" {
+                    for_each = var.spark_roles.worker_node.autoscale.recurrence.schedule != null ? [var.spark_roles.worker_node.autoscale.capacity.recurrence.schedule] : []
+                    content {
+                      days                  = var.spark_roles.worker_node.autoscale.recurrence.schedule.days
+                      target_instance_count = var.spark_roles.worker_node.autoscale.recurrence.schedule.target_instance_count
+                      time                  = var.spark_roles.worker_node.autoscale.recurrence.schedule.time
+                    }
+                  }
+                  timezone = var.spark_roles.worker_node.autoscale.recurrence.timezone
+                }
+              }
+            }
+          }
+        }
+      }
+
+      dynamic "zookeeper_node" {
+        for_each = var.spark_roles.zookeeper_node != null ? [var.spark_roles.zookeeper_node] : []
+        content {
+          username           = var.spark_roles.vm_username
+          password           = var.spark_roles.vm_password
+          vm_size            = var.spark_roles.zookeeper_node.vm_size
+          ssh_keys           = var.spark_roles.ssh_key_file
+          subnet_id          = var.spark_roles.zookeeper_node.subnet_id
+          virtual_network_id = var.spark_roles.zookeeper_node.virtual_network_id
+        }
+      }
+    }
+  } # spark roles
+
+  dynamic "storage_account" {
+    for_each = var.spark_storage_account_gen2 == null ? [1] : []
+    content {
+      is_default           = true
+      storage_account_key  = azurerm_storage_account.storeacc.primary_access_key
+      storage_container_id = azurerm_storage_container.storcont.id
+    }
+  }
+
+  dynamic "storage_account_gen2" {
+    for_each = var.spark_storage_account_gen2 != null ? [var.spark_storage_account_gen2] : []
+    content {
+      is_default                   = true #var.spark_storage_account_gen2.is_default
+      storage_resource_id          = var.spark_storage_account_gen2.storage_resource_id
+      filesystem_id                = var.spark_storage_account_gen2.filesystem_id
+      managed_identity_resource_id = var.spark_storage_account_gen2.managed_identity_resource_id
+    }
+  }
+
+  dynamic "network" {
+    for_each = var.spark_network != null ? [var.spark_network] : []
+    content {
+      connection_direction = var.spark_network.connection_direction
+      private_link_enabled = var.spark_network.private_link_enabled
+    }
+  }
+
+  dynamic "metastores" {
+    for_each = var.spark_metastores != null ? [var.spark_metastores] : []
+    content {
+      dynamic "hive" {
+        for_each = var.spark_metastores.hive != null ? [var.spark_metastores.hive] : []
+        content {
+          server        = var.spark_metastores.hive.server
+          database_name = var.spark_metastores.hive.database_name
+          username      = var.spark_metastores.hive.username
+          password      = var.spark_metastores.hive.password
+        }
+      }
+
+      dynamic "oozie" {
+        for_each = var.spark_metastores.oozie != null ? [var.spark_metastores.oozie] : []
+        content {
+          server        = var.spark_metastores.oozie.server
+          database_name = var.spark_metastores.oozie.database_name
+          username      = var.spark_metastores.oozie.username
+          password      = var.spark_metastores.oozie.password
+        }
+      }
+
+      dynamic "ambari" {
+        for_each = var.spark_metastores.ambari != null ? [var.spark_metastores.ambari] : []
+        content {
+          server        = var.spark_metastores.ambari.server
+          database_name = var.spark_metastores.ambari.database_name
+          username      = var.spark_metastores.ambari.username
+          password      = var.spark_metastores.ambari.password
+        }
+      }
+    }
+  }
+
+  dynamic "monitor" {
+    for_each = var.enable_spark_monitoring ? [1] : []
+    content {
+      log_analytics_workspace_id = data.azurerm_log_analytics_workspace.logws.0.workspace_id
+      primary_key                = data.azurerm_log_analytics_workspace.logws.0.primary_shared_key
+    }
+  }
+
+}
