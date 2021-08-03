@@ -5,9 +5,8 @@ provider "azurerm" {
 }
 
 module "hdinsight" {
-  //  source  = "kumarvna/hdinsight/azurerm"
-  //  version = "1.0.0"
-  source = "../../"
+  source  = "kumarvna/hdinsight/azurerm"
+    version = "1.0.0"
 
   # By default, this module will not create a resource group. Location will be same as existing RG.
   # proivde a name to use an existing resource group, specify the existing resource group name, 
@@ -19,8 +18,8 @@ module "hdinsight" {
   # Valid values are `hadoop`, `hbase`, `interactive-query`, `kafka`, `spark`.
   hdinsight_cluster_type = "hadoop"
 
-  # Hdinsight hadoop cluster configuration
-  # gateway credentials must be different from the one used for the `head_node`, `worker_node` and `zookeeper_node` roles.
+  # Hdinsight hadoop cluster configuration. Gateway credentials must be different from the one used 
+  # for the `head_node`, `worker_node` and `zookeeper_node` roles.
   hadoop_cluster = {
     name             = "hadoopdemocluster1"
     cluster_version  = "3.6"
@@ -32,7 +31,8 @@ module "hdinsight" {
 
   # Node configuration
   # Either a password or one or more ssh_keys must be specified - but not both.
-  # Password must be at least 10 characters in length and must contain digits,uppercase, lower case letters and non-alphanumeric characters 
+  # Password must be at least 10 characters in length and must contain digits,uppercase, 
+  # lower case letters and non-alphanumeric characters 
   hadoop_roles = {
     vm_username = "acctestusrvm"
     vm_password = "AccTestvdSC4daf986!"
@@ -54,8 +54,8 @@ module "hdinsight" {
     }
   }
 
-  # Use Azure Monitor logs to monitor HDInsight clusters
-  # Recommended to place both the HDInsight cluster and the Log Analytics workspace in the same region for better performance
+  # Use Azure Monitor logs to monitor HDInsight clusters. Recommended to place both the HDInsight 
+  # cluster and the Log Analytics workspace in the same region for better performance.
   enable_hadoop_monitoring     = true
   log_analytics_workspace_name = "loganalytics-we-sharedtest2"
 
