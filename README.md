@@ -1,2 +1,92 @@
-# terraform-azurerm_hdinsight
-Terraform Module to create a managed, full-spectrum, open-source Azure HDInsight analytics service.  
+# Azure HDInsight Terraform Module
+
+Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Apache Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
+
+## Resources supported
+
+- [Apache Spark Cluster](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/hdinsight_spark_cluster)
+- [Apache Hadoop Cluster](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/hdinsight_hadoop_cluster)
+- [Apache HBase Cluster](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/hdinsight_hbase_cluster)
+- [Apache Hive LLAP (Interactive Query) Cluster](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/hdinsight_interactive_query_cluster)
+- [Apache Kafka Cluster](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/hdinsight_kafka_cluster)
+
+## Module Usage
+
+- [Hdinsight Hadoop Cluster](hdinsight_hadoop_cluster/README.md)
+- [Hdinsight HBase Cluster](hdinsight_hbase_cluster/README.md)
+- [Hdinsight Interactive Query Cluster](hdinsight_interactive_query_cluster/README.md)
+- [Hdinsight Kafka Cluster](hdinsight_kafka_cluster/README.md)
+- [Hdinsight Spark Cluster](hdinsight_spark_cluster/README.md)
+
+## Module Usage of HDInsight Hadoop Cluster
+
+```hcl
+# Azurerm Provider configuration
+provider "azurerm" {
+  features {
+  }
+}
+
+module "hdinsight" {
+  source  = "kumarvna/hdinsight/azurerm"
+    version = "1.0.0"
+
+  # By default, this module will not create a resource group. Location will be same as existing RG.
+  # proivde a name to use an existing resource group, specify the existing resource group name, 
+  # set the argument to `create_resource_group = true` to create new resrouce group.
+  resource_group_name = "rg-shared-westeurope-01"
+  location            = "westeurope"
+
+  # The type of hdinsight cluster to create 
+  # Valid values are `hadoop`, `hbase`, `interactive_query`, `kafka`, `spark`.
+  hdinsight_cluster_type = "hadoop"
+
+  # Hdinsight hadoop cluster configuration. Gateway credentials must be different from the one used 
+  # for the `head_node`, `worker_node` and `zookeeper_node` roles.
+  hadoop_cluster = {
+    name             = "hadoopdemocluster1"
+    cluster_version  = "3.6"
+    gateway_username = "acctestusrgw"
+    gateway_password = "TerrAform123!"
+    hadoop_version   = "2.7"
+    tier             = "Standard"
+  }
+
+  # Node configuration
+  # Either a password or one or more ssh_keys must be specified - but not both.
+  # Password must be at least 10 characters in length and must contain digits,uppercase, 
+  # lower case letters and non-alphanumeric characters 
+  hadoop_roles = {
+    vm_username = "acctestusrvm"
+    vm_password = "AccTestvdSC4daf986!"
+    head_node = {
+      vm_size = "Standard_D3_V2"
+    }
+    worker_node = {
+      vm_size               = "Standard_D4_V2"
+      target_instance_count = 3
+      autoscale = {
+        capacity = {
+          max_instance_count = 4
+          min_instance_count = 3
+        }
+      }
+    }
+    zookeeper_node = {
+      vm_size = "Standard_D3_V2"
+    }
+  }
+
+  # Use Azure Monitor logs to monitor HDInsight clusters. Recommended to place both the HDInsight 
+  # cluster and the Log Analytics workspace in the same region for better performance.
+  enable_hadoop_monitoring     = true
+  log_analytics_workspace_name = "loganalytics-we-sharedtest2"
+
+  # Tags for Azure Resources
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+    Owner       = "test-user"
+  }
+}
+```

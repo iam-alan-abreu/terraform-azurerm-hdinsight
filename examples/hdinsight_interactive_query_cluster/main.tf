@@ -5,9 +5,8 @@ provider "azurerm" {
 }
 
 module "hdinsight" {
-  //source  = "kumarvna/hdinsight/azurerm"
-  //version = "1.0.0"
-  source = "../../"
+  source  = "kumarvna/hdinsight/azurerm"
+  version = "1.0.0"
 
   # By default, this module will not create a resource group. Location will be same as existing RG.
   # proivde a name to use an existing resource group, specify the existing resource group name, 

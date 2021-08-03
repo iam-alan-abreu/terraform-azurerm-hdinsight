@@ -1,8 +1,10 @@
 # Azure HDInsight Terraform Module
 
-Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
+Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Apache Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
 
-## Module Usage
+This example shows how to create an Apache Spark Cluster in Azure HDInsight. Apache Spark is a parallel processing framework that supports in-memory processing to boost the performance of big-data analytic applications. Spark clusters in HDInsight are compatible with Azure Blob storage or Azure Data Lake Storage Gen2.
+
+## Module Usage for HDInsight Spark Cluster
 
 ```hcl
 # Azurerm Provider configuration

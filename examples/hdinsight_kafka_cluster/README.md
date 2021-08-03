@@ -1,8 +1,10 @@
 # Azure HDInsight Terraform Module
 
-Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
+Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Apache Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
 
-## Module Usage
+This example shows how to create an Apache Kafka Cluster. Kafka is an open-source distributed streaming platform that can be used to build real-time streaming data pipelines and applications. It also provides message broker functionality similar to a message queue, where you can publish and subscribe to named data streams.
+
+## Module Usage for HDInsight Kafka Cluster
 
 ```hcl
 # Azurerm Provider configuration

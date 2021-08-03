@@ -1,8 +1,10 @@
 # Azure HDInsight Terraform Module
 
-Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
+Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Apache Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
 
-## Module Usage
+This example shows how to create an Interactive Query also called Apache Hive LLAP, or Low Latency Analytical Processing Cluster. Interactive Query supports in-memory caching, which makes Apache Hive queries faster and much more interactive. Customers use Interactive Query to query data stored in Azure storage & Azure Data Lake Storage in super-fast manner. An Interactive Query cluster is different from an Apache Hadoop cluster. It contains only the Hive service.
+
+## Module Usage for HDInsight Interactive Query (Apache Hive LLAP) Cluster
 
 ```hcl
 # Azurerm Provider configuration

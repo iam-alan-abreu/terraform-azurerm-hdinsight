@@ -1,8 +1,10 @@
 # Azure HDInsight Terraform Module
 
-Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
+Terraform module to create managed, full-spectrum, open-source analytics service Azure HDInsight. This module creates Apache Hadoop, Apache Spark, Apache HBase, Interactive Query (Apache Hive LLAP) and Apache Kafka clusters.
 
-## Module Usage
+This example shows how to create an Apache HBase is an open-source, NoSQL database that is built on Apache Hadoop and modeled after Google BigTable. HBase provides random access and strong consistency for large amounts of data in a schemaless database. HBase is a schemaless database. The columns and data types can be undefined before using them. The open-source code scales linearly to handle petabytes of data on thousands of nodes. It can rely on data redundancy, batch processing, and other features that are provided by distributed applications in the Hadoop environment.
+
+## Module Usage for HDInsight HBase Cluster
 
 ```hcl
 # Azurerm Provider configuration
