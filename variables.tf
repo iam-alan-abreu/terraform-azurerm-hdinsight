@@ -256,8 +256,91 @@ variable "enable_hbase_monitoring" {
   default     = false
 }
 
+variable "kafka_cluster" {
+  type = object({
+    name                          = string
+    cluster_version               = string
+    tier                          = string
+    tls_min_version               = optional(string)
+    encryption_in_transit_enabled = optional(bool)
+    kafka_version                 = string
+    gateway_username              = string
+    gateway_password              = string
+  })
+  description = "Manages a HDInsight Kafka Cluster"
+  default     = null
+}
 
+variable "kafka_roles" {
+  type = object({
+    vm_username  = string
+    vm_password  = optional(string)
+    ssh_key_file = optional(list(string))
+    head_node = object({
+      vm_size            = string
+      subnet_id          = optional(string)
+      virtual_network_id = optional(string)
+    })
+    worker_node = object({
+      vm_size                  = string
+      subnet_id                = optional(string)
+      target_instance_count    = optional(number)
+      virtual_network_id       = optional(string)
+      number_of_disks_per_node = number
+    })
+    zookeeper_node = object({
+      vm_size            = string
+      subnet_id          = optional(string)
+      virtual_network_id = optional(string)
+    })
+    kafka_management_node = optional(object({
+      vm_size            = string
+      subnet_id          = optional(string)
+      virtual_network_id = optional(string)
+    }))
+  })
+  description = "Manage roles for HDInsight Kafka Cluster"
+  default     = null
+}
 
+variable "kafka_storage_account_gen2" {
+  type = object({
+    storage_resource_id          = string
+    filesystem_id                = string
+    managed_identity_resource_id = string
+  })
+  default = null
+}
+
+variable "kafka_metastores" {
+  type = object({
+    hive = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+    oozie = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+    ambari = object({
+      server        = string
+      database_name = string
+      username      = string
+      password      = string
+    })
+  })
+  description = "HDInsight metadata with external data stores, available for Apache Hive metastore, Apache Oozie metastore, and Apache Ambari database."
+  default     = null
+}
+
+variable "enable_kafka_monitoring" {
+  description = "Use Azure Monitor logs to monitor HDInsight hbase cluster"
+  default     = false
+}
 
 variable "tags" {
   description = "A map of tags to add to all resources"
