@@ -119,6 +119,7 @@ variable "hadoop_storage_account_gen2" {
     filesystem_id                = string
     managed_identity_resource_id = string
   })
+  description = "Specify configuration for Azure Data Lake Storage Gen 2"
   default = null
 }
 
@@ -127,6 +128,7 @@ variable "hadoop_network" {
     connection_direction = optional(string)
     private_link_enabled = optional(bool)
   })
+  description = "Specify the networking and private endpoint configuration"
   default = null
 }
 
