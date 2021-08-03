@@ -527,7 +527,7 @@ resource "azurerm_hdinsight_kafka_cluster" "main" {
 }
 
 #---------------------------------------------------------------
-# hdinsight hbase cluster - Default is "false"
+# hdinsight Spark cluster - Default is "false"
 #----------------------------------------------------------------
 
 resource "azurerm_hdinsight_spark_cluster" "main" {
@@ -616,7 +616,7 @@ resource "azurerm_hdinsight_spark_cluster" "main" {
         }
       }
     }
-  } # spark roles
+  }
 
   dynamic "storage_account" {
     for_each = var.spark_storage_account_gen2 == null ? [1] : []
@@ -687,5 +687,167 @@ resource "azurerm_hdinsight_spark_cluster" "main" {
       primary_key                = data.azurerm_log_analytics_workspace.logws.0.primary_shared_key
     }
   }
+}
 
+#---------------------------------------------------------------------------------------------------------------------------------
+# hdinsight  Interactive Query cluster (also called Apache Hive LLAP, or Low Latency Analytical Processing) - Default is "false"
+#---------------------------------------------------------------------------------------------------------------------------------
+
+resource "azurerm_hdinsight_interactive_query_cluster" "main" {
+  count               = var.hdinsight_cluster_type == "interactive_query" ? 1 : 0
+  name                = format("%s", var.interactive_query_cluster.name)
+  resource_group_name = local.resource_group_name
+  location            = local.location
+  cluster_version     = var.interactive_query_cluster.cluster_version
+  tier                = var.interactive_query_cluster.tier
+  tls_min_version     = var.interactive_query_cluster.tls_min_version
+  tags                = merge({ "Name" = format("%s", var.interactive_query_cluster.name) }, var.tags, )
+
+  component_version {
+    interactive_hive = var.interactive_query_cluster.interactive_query_version
+  }
+
+  gateway {
+    username = var.interactive_query_cluster.gateway_username
+    password = var.interactive_query_cluster.gateway_password
+  }
+
+  dynamic "roles" {
+    for_each = var.interactive_query_roles != null ? [var.interactive_query_roles] : []
+    content {
+      dynamic "head_node" {
+        for_each = var.interactive_query_roles.head_node != null ? [var.interactive_query_roles.head_node] : []
+        content {
+          username           = var.interactive_query_roles.vm_username
+          password           = var.interactive_query_roles.vm_password
+          vm_size            = var.interactive_query_roles.head_node.vm_size
+          ssh_keys           = var.interactive_query_roles.ssh_key_file
+          subnet_id          = var.interactive_query_roles.head_node.subnet_id
+          virtual_network_id = var.interactive_query_roles.head_node.virtual_network_id
+        }
+      }
+      dynamic "worker_node" {
+        for_each = var.interactive_query_roles.worker_node != null ? [var.interactive_query_roles.worker_node] : []
+        content {
+          # Either a password or one or more ssh_keys must be specified - but not both.
+          username              = var.interactive_query_roles.vm_username
+          password              = var.interactive_query_roles.vm_password
+          vm_size               = var.interactive_query_roles.worker_node.vm_size
+          ssh_keys              = var.interactive_query_roles.ssh_key_file
+          subnet_id             = var.interactive_query_roles.worker_node.subnet_id
+          target_instance_count = var.interactive_query_roles.worker_node.target_instance_count
+          virtual_network_id    = var.interactive_query_roles.worker_node.virtual_network_id
+          # Either a `capacity` or `recurrence` block must be specified - but not both.
+          dynamic "autoscale" {
+            for_each = var.interactive_query_roles.worker_node.autoscale != null ? [var.interactive_query_roles.worker_node.autoscale] : []
+            content {
+              dynamic "capacity" {
+                for_each = var.interactive_query_roles.worker_node.autoscale.capacity != null ? [var.interactive_query_roles.worker_node.autoscale.capacity] : []
+                content {
+                  max_instance_count = var.interactive_query_roles.worker_node.autoscale.capacity.max_instance_count
+                  min_instance_count = var.interactive_query_roles.worker_node.autoscale.capacity.min_instance_count
+                }
+              }
+              dynamic "recurrence" {
+                for_each = var.interactive_query_roles.worker_node.autoscale.recurrence != null ? [var.interactive_query_roles.worker_node.autoscale.recurrence] : []
+                content {
+                  dynamic "schedule" {
+                    for_each = var.interactive_query_roles.worker_node.autoscale.recurrence.schedule != null ? [var.interactive_query_roles.worker_node.autoscale.capacity.recurrence.schedule] : []
+                    content {
+                      days                  = var.interactive_query_roles.worker_node.autoscale.recurrence.schedule.days
+                      target_instance_count = var.interactive_query_roles.worker_node.autoscale.recurrence.schedule.target_instance_count
+                      time                  = var.interactive_query_roles.worker_node.autoscale.recurrence.schedule.time
+                    }
+                  }
+                  timezone = var.interactive_query_roles.worker_node.autoscale.recurrence.timezone
+                }
+              }
+            }
+          }
+        }
+      }
+
+      dynamic "zookeeper_node" {
+        for_each = var.interactive_query_roles.zookeeper_node != null ? [var.interactive_query_roles.zookeeper_node] : []
+        content {
+          username           = var.interactive_query_roles.vm_username
+          password           = var.interactive_query_roles.vm_password
+          vm_size            = var.interactive_query_roles.zookeeper_node.vm_size
+          ssh_keys           = var.interactive_query_roles.ssh_key_file
+          subnet_id          = var.interactive_query_roles.zookeeper_node.subnet_id
+          virtual_network_id = var.interactive_query_roles.zookeeper_node.virtual_network_id
+        }
+      }
+    } # interactive_query_roles
+  }   # interactive_query_roles
+
+  dynamic "storage_account" {
+    for_each = var.interactive_query_storage_account_gen2 == null ? [1] : []
+    content {
+      is_default           = true
+      storage_account_key  = azurerm_storage_account.storeacc.primary_access_key
+      storage_container_id = azurerm_storage_container.storcont.id
+    }
+  }
+
+  dynamic "storage_account_gen2" {
+    for_each = var.interactive_query_storage_account_gen2 != null ? [var.interactive_query_storage_account_gen2] : []
+    content {
+      is_default                   = true #var.interactive_query_storage_account_gen2.is_default
+      storage_resource_id          = var.interactive_query_storage_account_gen2.storage_resource_id
+      filesystem_id                = var.interactive_query_storage_account_gen2.filesystem_id
+      managed_identity_resource_id = var.interactive_query_storage_account_gen2.managed_identity_resource_id
+    }
+  }
+
+  dynamic "network" {
+    for_each = var.interactive_query_network != null ? [var.interactive_query_network] : []
+    content {
+      connection_direction = var.interactive_query_network.connection_direction
+      private_link_enabled = var.interactive_query_network.private_link_enabled
+    }
+  }
+
+  dynamic "metastores" {
+    for_each = var.interactive_query_metastores != null ? [var.interactive_query_metastores] : []
+    content {
+      dynamic "hive" {
+        for_each = var.interactive_query_metastores.hive != null ? [var.interactive_query_metastores.hive] : []
+        content {
+          server        = var.interactive_query_metastores.hive.server
+          database_name = var.interactive_query_metastores.hive.database_name
+          username      = var.interactive_query_metastores.hive.username
+          password      = var.interactive_query_metastores.hive.password
+        }
+      }
+
+      dynamic "oozie" {
+        for_each = var.interactive_query_metastores.oozie != null ? [var.interactive_query_metastores.oozie] : []
+        content {
+          server        = var.interactive_query_metastores.oozie.server
+          database_name = var.interactive_query_metastores.oozie.database_name
+          username      = var.interactive_query_metastores.oozie.username
+          password      = var.interactive_query_metastores.oozie.password
+        }
+      }
+
+      dynamic "ambari" {
+        for_each = var.interactive_query_metastores.ambari != null ? [var.interactive_query_metastores.ambari] : []
+        content {
+          server        = var.interactive_query_metastores.ambari.server
+          database_name = var.interactive_query_metastores.ambari.database_name
+          username      = var.interactive_query_metastores.ambari.username
+          password      = var.interactive_query_metastores.ambari.password
+        }
+      }
+    }
+  }
+
+  dynamic "monitor" {
+    for_each = var.enable_interactive_query_monitoring ? [1] : []
+    content {
+      log_analytics_workspace_id = data.azurerm_log_analytics_workspace.logws.0.workspace_id
+      primary_key                = data.azurerm_log_analytics_workspace.logws.0.primary_shared_key
+    }
+  }
 }

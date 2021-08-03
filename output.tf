@@ -57,3 +57,18 @@ output "spark_cluster_ssh_endpoint" {
   description = "The SSH Connectivity Endpoint for this HDInsight Spark Cluster"
   value       = var.hdinsight_cluster_type == "spark" ? azurerm_hdinsight_spark_cluster.main.0.ssh_endpoint : null
 }
+
+output "interactive_query_cluster_id" {
+  description = "The ID of the HDInsight Interactive Query Cluster"
+  value       = var.hdinsight_cluster_type == "interactive_query" ? azurerm_hdinsight_interactive_query_cluster.main.0.id : null
+}
+
+output "interactive_query_cluster_https_endpoint" {
+  description = "The HTTPS Connectivity Endpoint for this HDInsight Interactive Query Cluster"
+  value       = var.hdinsight_cluster_type == "interactive_query" ? azurerm_hdinsight_interactive_query_cluster.main.0.https_endpoint : null
+}
+
+output "interactive_query_cluster_ssh_endpoint" {
+  description = "The SSH Connectivity Endpoint for this HDInsight Interactive Query Cluster"
+  value       = var.hdinsight_cluster_type == "interactive_query" ? azurerm_hdinsight_interactive_query_cluster.main.0.ssh_endpoint : null
+}
