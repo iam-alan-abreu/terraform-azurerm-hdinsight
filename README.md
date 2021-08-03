@@ -10,15 +10,15 @@ Terraform module to create managed, full-spectrum, open-source analytics service
 - [Apache Hive LLAP (Interactive Query) Cluster](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/hdinsight_interactive_query_cluster)
 - [Apache Kafka Cluster](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/hdinsight_kafka_cluster)
 
-## Module Usage
+## Module Usage examples for
 
-- [Hdinsight Hadoop Cluster](hdinsight_hadoop_cluster/README.md)
-- [Hdinsight HBase Cluster](hdinsight_hbase_cluster/README.md)
-- [Hdinsight Interactive Query Cluster](hdinsight_interactive_query_cluster/README.md)
-- [Hdinsight Kafka Cluster](hdinsight_kafka_cluster/README.md)
-- [Hdinsight Spark Cluster](hdinsight_spark_cluster/README.md)
+- [Hdinsight Hadoop Cluster](examples/hdinsight_hadoop_cluster/README.md)
+- [Hdinsight HBase Cluster](examples/hdinsight_hbase_cluster/README.md)
+- [Hdinsight Interactive Query Cluster](examples/hdinsight_interactive_query_cluster/README.md)
+- [Hdinsight Kafka Cluster](examples/hdinsight_kafka_cluster/README.md)
+- [Hdinsight Spark Cluster](examples/hdinsight_spark_cluster/README.md)
 
-## Module Usage of HDInsight Hadoop Cluster
+## Module Usage for HDInsight Hadoop Cluster
 
 ```hcl
 # Azurerm Provider configuration
