@@ -85,11 +85,11 @@ module "hdinsight" {
 
 ## Module Usage examples for
 
-- [Hdinsight Hadoop Cluster](examples/hdinsight_hadoop_cluster/README.md)
-- [Hdinsight HBase Cluster](examples/hdinsight_hbase_cluster/README.md)
-- [Hdinsight Interactive Query Cluster](examples/hdinsight_interactive_query_cluster/README.md)
-- [Hdinsight Kafka Cluster](examples/hdinsight_kafka_cluster/README.md)
-- [Hdinsight Spark Cluster](examples/hdinsight_spark_cluster/README.md)
+- [Hdinsight Hadoop Cluster](examples/hdinsight_hadoop_cluster/)
+- [Hdinsight HBase Cluster](examples/hdinsight_hbase_cluster/)
+- [Hdinsight Interactive Query Cluster](examples/hdinsight_interactive_query_cluster/)
+- [Hdinsight Kafka Cluster](examples/hdinsight_kafka_cluster/)
+- [Hdinsight Spark Cluster](examples/hdinsight_spark_cluster/)
 
 ## Requirements
 

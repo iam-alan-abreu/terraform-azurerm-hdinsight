@@ -4,11 +4,11 @@ Terraform module to create managed, full-spectrum, open-source analytics service
 
 ## Module Usage for
 
-* [Hdinsight Hadoop Cluster](hdinsight_hadoop_cluster/README.md)
-* [Hdinsight HBase Cluster](hdinsight_hbase_cluster/README.md)
-* [Hdinsight Interactive Query Cluster](hdinsight_interactive_query_cluster/README.md)
-* [Hdinsight Kafka Cluster](hdinsight_kafka_cluster/README.md)
-* [Hdinsight Spark Cluster](hdinsight_spark_cluster/README.md)
+* [Hdinsight Hadoop Cluster](hdinsight_hadoop_cluster/)
+* [Hdinsight HBase Cluster](hdinsight_hbase_cluster/)
+* [Hdinsight Interactive Query Cluster](hdinsight_interactive_query_cluster/)
+* [Hdinsight Kafka Cluster](hdinsight_kafka_cluster/)
+* [Hdinsight Spark Cluster](hdinsight_spark_cluster/)
 
 ## Terraform Usage
 
