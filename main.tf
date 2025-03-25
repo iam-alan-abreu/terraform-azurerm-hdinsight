@@ -49,7 +49,7 @@ resource "azurerm_storage_account" "storeacc" {
   account_kind              = var.storage_account.account_kind
   account_tier              = var.storage_account.account_tier
   account_replication_type  = var.storage_account.account_replication_type
-  enable_https_traffic_only = var.storage_account.enable_https_traffic_only
+  # enable_https_traffic_only = var.storage_account.enable_https_traffic_only
   min_tls_version           = var.storage_account.min_tls_version
   tags                      = merge({ "Name" = var.storage_account_name == null ? "hdinsightstorage${random_string.str.0.result}" : substr(var.storage_account_name, 0, 24) }, var.tags, )
 }
